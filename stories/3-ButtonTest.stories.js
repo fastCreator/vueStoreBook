@@ -9,17 +9,13 @@ import { DocsPage, DocsContainer } from '@storybook/addon-docs/blocks'
 import MyButton from './MyButton'
 
 export default {
-  title: 'Button',
+  title: 'ButtonTest',
   component: MyButton,
   parameters: {
     docs: {
       container: DocsContainer,
       page: DocsPage
-    },
-    backgrounds: [
-      { name: 'twitter', value: '#00aced' },
-      { name: 'facebook', value: '#3b5998', default: true }
-    ]
+    }
   }
 }
 
