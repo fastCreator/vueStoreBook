@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "stories/*"
+  ],
+  "version": "independent"
+}

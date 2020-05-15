@@ -1,0 +1,20 @@
+{
+  "name": "@vue-uis/elpand-select",
+  "version": "0.0.1",
+  "description": "element扩展select组件",
+  "main": "index.common.min.js",
+  "module": "src/index.js",
+  "browser": "lib/index.umd.min.js",
+  "scripts": {
+    "build": "vue-cli-service build --target lib --dest lib --name index src/index.js",
+    "pub": "npm run build && npm publish"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "author": "zhangguo",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}

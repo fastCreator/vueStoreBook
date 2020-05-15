@@ -1,0 +1,42 @@
+import {
+  Meta,
+  Story,
+  Props,
+  Preview,
+  Title,
+  DocsContainer
+} from '@storybook/addon-docs/blocks'
+
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
+
+import InfoButton from './src/index.vue'
+
+<Meta title='web/Element/选择框' component={InfoButton} parameters={{viewport:{viewports: INITIAL_VIEWPORTS}}}/>
+
+<Title>11111111</Title>
+
+# InfoButton
+
+Some **markdown** description, or whatever you want.
+
+<Preview>
+  <Story name='basic' height='400px'>
+    {{
+      components: { InfoButton },
+      template: '<info-button label="I\'m a button!"/>'
+    }}
+  </Story>
+</Preview>
+
+<Preview>
+  <Story name='basic2' height='400px'>
+    {{
+      components: { InfoButton },
+      template: '<info-button label="I\'m a button!"/>'
+    }}
+  </Story>
+</Preview>
+
+## Props
+
+<Props of={InfoButton} />

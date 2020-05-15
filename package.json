@@ -1,14 +1,15 @@
 {
-  "name": "vueStoreBook",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "vue-store-book",
+  "version": "0.0.1",
+  "description": "Vue UI 组件库",
   "dependencies": {
     "babel-loader": "^8.1.0",
+    "element-ui": "^2.13.1",
     "marked": "^1.0.0",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "vux": "^2.9.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -18,14 +19,17 @@
     "@storybook/addon-docs": "^5.3.18",
     "@storybook/addon-knobs": "^5.3.18",
     "@storybook/addon-links": "^5.3.18",
+    "@storybook/addon-viewport": "^5.3.18",
     "@storybook/addons": "^5.3.18",
     "@storybook/vue": "^5.3.18",
-    "babel-preset-vue": "^2.0.2"
+    "babel-preset-vue": "^2.0.2",
+    "gh-pages": "^2.2.0",
+    "lerna": "^3.21.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "deploy": "gh-pages -d storybook-static"
   },
   "repository": {
     "type": "git",
