@@ -1,0 +1,57 @@
+import {
+  Meta,
+  Story,
+  Props,
+  Preview,
+  Title,
+  DocsContainer
+} from '@storybook/addon-docs/blocks'
+
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport'
+
+import backgrounds from '../../../../lib/backgrounds'
+
+import { withKnobs, text, boolean } from '@storybook/addon-knobs'
+
+
+
+import mtpandSwitch from './src/index.vue'
+
+<Meta
+  title='mobile/mintUI/switch'
+  component={mtpandSwitch}
+  parameters={{
+    viewport: { viewports: INITIAL_VIEWPORTS, defaultViewport: 'iphone6' },
+    backgrounds:backgrounds
+  }}
+  decorators={[withKnobs]}
+/>
+
+<Title>mtpandSwitch</Title>
+
+##### 基础用法
+
+<Preview>
+  <Story name='基础用法' height='200px'>
+    {{
+      components: { mtpandSwitch },
+      template: `<mtpand-switch :label="text"/>`,
+      props: {
+        text: {
+          default: text('label', '标题')
+        }
+      },
+      data () {
+        return {
+          value: true
+        }
+      },
+      methods: {
+      }
+    }}
+  </Story>
+</Preview>
+
+## Props
+
+<Props of={mtpandSwitch} />

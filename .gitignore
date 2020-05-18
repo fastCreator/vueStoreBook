@@ -4,3 +4,4 @@ node_modules
 .DS_Store*
 .vscode
 storybook-static
+package-lock.json

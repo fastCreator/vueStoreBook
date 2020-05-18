@@ -9,34 +9,55 @@ import {
 
 import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
 
-import InfoButton from './src/index.vue'
+import elpandSelect from './src/index.vue'
 
-<Meta title='web/Element/选择框' component={InfoButton} parameters={{viewport:{viewports: INITIAL_VIEWPORTS}}}/>
+<Meta title='web/Element/选择框' component={elpandSelect} parameters={{viewport:{disable: true}}}/>
 
-<Title>11111111</Title>
+<Title>elpandSelect</Title>
 
-# InfoButton
-
-Some **markdown** description, or whatever you want.
+##### 基础用法
 
 <Preview>
-  <Story name='basic' height='400px'>
+  <Story name='基础用法' height='200px'>
     {{
-      components: { InfoButton },
-      template: '<info-button label="I\'m a button!"/>'
+      components: { elpandSelect },
+      template: '<elpand-select class="my-select" :options="options" v-model="value"/>',
+      data(){
+        return {
+          value:'niuRou',
+          options:[
+              {label:'牛肉',value:'niuRou'},
+              {label:'猪肉',value:'zhuRou'}
+          ]
+        }
+      }
     }}
   </Story>
 </Preview>
 
+#### 有禁用选项
+
 <Preview>
-  <Story name='basic2' height='400px'>
+  <Story name='有禁用选项' height='100px'>
     {{
-      components: { InfoButton },
-      template: '<info-button label="I\'m a button!"/>'
+      components: { elpandSelect },
+      template: '<elpand-select class="my-select" :options="options" :bind="bind" v-model="value"/>',
+      data(){
+        return {
+          value:'niuRou',
+          options:[
+              {label:'牛肉',value:'niuRou'},
+              {label:'猪肉',value:'zhuRou'}
+          ],
+          bind:{
+            disabled:true
+          }
+        }
+      }
     }}
   </Story>
 </Preview>
 
 ## Props
 
-<Props of={InfoButton} />
+<Props of={elpandSelect} />

@@ -1,7 +1,7 @@
 {
-  "name": "@vue-uis/elpand-select",
+  "name": "@vue-uis/mtpand-switch",
   "version": "0.0.1",
-  "description": "element扩展select组件",
+  "description": "mint-ui扩展switch组件",
   "main": "index.common.min.js",
   "module": "src/index.js",
   "browser": "lib/index.umd.min.js",
@@ -17,7 +17,10 @@
   "author": "zhangguo",
   "license": "ISC",
   "peerDependencies": {
-    "element-ui": "^2.13.1"
+    "mint-ui": "^2.2.13"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    
+  },
+  "dependencies": {}
 }

@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
+    "@babel/plugin-transform-modules-commonjs": "^7.9.6",
     "@storybook/addon-a11y": "^5.3.18",
     "@storybook/addon-actions": "^5.3.18",
     "@storybook/addon-backgrounds": "^5.3.18",
@@ -24,7 +25,8 @@
     "@storybook/vue": "^5.3.18",
     "babel-preset-vue": "^2.0.2",
     "gh-pages": "^2.2.0",
-    "lerna": "^3.21.0"
+    "lerna": "^3.21.0",
+    "mint-ui": "^2.2.13"
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",

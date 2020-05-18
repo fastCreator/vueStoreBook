@@ -1,10 +1,14 @@
-const createCompiler = require('@storybook/addon-docs/mdx-compiler-plugin')
-
 module.exports = {
   stories: ['../stories/**/*.stories.(js|mdx)'],
+  babel: async function (config) {
+    config.plugins.push(
+      require.resolve('@babel/plugin-transform-modules-commonjs')
+    )
+    return config
+  },
   addons: [
     // https://github.com/storybookjs/storybook/tree/master/addons
-    '@storybook/addon-actions', // 事件响应
+    // '@storybook/addon-actions', // 事件响应
     '@storybook/addon-links', // 链接跳转
     '@storybook/addon-knobs', // 参数联动
     '@storybook/addon-docs/register', // 文档
