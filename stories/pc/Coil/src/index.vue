@@ -8,27 +8,22 @@
     @mousemove="handlerMousemove"
     @click="handlerClick"
   >
-    <g
-      class="block"
-      v-bind="pathAttrs"
-      v-for="(it, i) in blocks"
-      :key="it.name"
-    >
+    <g class="block" v-bind="pathAttrs" v-for="(it, i) in blocks" :key="it.key">
       <ellipse
         v-if="it.type === 'ellipse'"
-        v-bind="getEllipsePath(it.paths)"
+        v-bind="getEllipsePath(it)"
         @click="selecteBlock(i)"
         @mousedown="handlerMousedown($event, i)"
       />
       <path
         v-else
-        :d="getRectPath(it.paths)"
+        :d="getRectPath(it)"
         @click.stop="selecteBlock(i)"
         @mousedown="handlerMousedown($event, i)"
       />
       <rect
         v-if="selectedI === i"
-        v-for="(jt, j) in it.paths"
+        v-for="(jt, j) in getShowPath(it)"
         :x="jt[0] - rectAttrs.width / 2"
         :y="jt[1] - rectAttrs.height / 2"
         :key="j"
@@ -75,6 +70,44 @@ export default {
     }
   },
   methods: {
+    $del () {
+      if (this.selectedI >= 0) {
+        this.blocks.splice(this.selectedI, 1)
+        this.addHistory()
+        this.selectedI = -1
+      }
+    },
+    $copy () {
+      if (this.selectedI >= 0) {
+        this.copyBlock = deepClone(this.blocks[this.selectedI])
+      }
+    },
+    $cut () {
+      this.$copy()
+      this.$del()
+    },
+    $paste () {
+      if (this.copyBlock) {
+        this.blocks.push({ ...this.copyBlock, key: Date.now() })
+        this.addHistory()
+      }
+    },
+    changeBlockStatus (type, bool) {
+      const block = this.blocks[this.selectedI]
+      if (block) {
+        block[type] = bool
+        this.$forceUpdate()
+      }
+    },
+    endBlockStatus (type) {
+      const block = this.blocks[this.selectedI]
+      if (block && block[type]) {
+        if (type === 'square') {
+          block.paths = sqre2rect(block.paths)
+        }
+        this.$forceUpdate()
+      }
+    },
     $redu () {
       if (this.historyI > 0) {
         this.historyI--
@@ -97,8 +130,8 @@ export default {
       this.history.push(blocks)
       this.historyI++
     },
-    $addBlock (name, type, paths) {
-      this.blocks.push({ name, type, paths })
+    $addBlock (type, paths) {
+      this.blocks.push({ key: Date.now(), type, paths })
       this.addHistory()
     },
     blockMove (direc) {
@@ -113,12 +146,20 @@ export default {
         this.$forceUpdate()
       }
     },
-    getRectPath (paths) {
+    getShowPath ({ paths, square, type }) {
+      if (square && type !== 'polygon') {
+        return sqre2rect(paths)
+      }
+      return paths
+    },
+    getRectPath ({ paths, square, type }) {
+      paths = this.getShowPath({ paths, square, type })
       return `M${paths
         .reduce((a, b) => `${a} L${b[0]} ${b[1]}`, '')
         .slice(2)} Z`
     },
-    getEllipsePath (paths) {
+    getEllipsePath ({ paths, square, type }) {
+      paths = this.getShowPath({ paths, square, type })
       const p1 = paths[0]
       const p2 = paths[2]
       const cx = (p1[0] + p2[0]) / 2
@@ -140,6 +181,7 @@ export default {
     handlerMouseup () {
       if (this.mouseData) {
         this.addHistory()
+        this.endBlockStatus('square')
       }
       this.mouseData = null
     },
@@ -207,13 +249,29 @@ export default {
           key === 'ArrowRight'
         ) {
           this.blockMove(key)
+        } else if (key === 'Backspace') {
+          this.$del()
+        } else if (key === 'c') {
+          this.$copy()
+        } else if (key === 'x') {
+          this.$cut()
+        } else if (key === 'v') {
+          this.$paste()
+        }
+        e.stopPropagation()
+      } else if (this.mouseData) {
+        if (key === 'Shift') {
+          this.changeBlockStatus('square', true)
         }
       }
     },
     handlerKeyup (e) {
-      this.keyStatus[e.key] = false
-      if (e.key === 'Meta' || e.key === 'Control') {
+      const { key } = e
+      this.keyStatus[key] = false
+      if (key === 'Meta' || key === 'Control') {
         this.addHistory()
+      } else if (key === 'Shift') {
+        this.changeBlockStatus('square', false)
       }
     },
     listeMouseUp () {
@@ -228,14 +286,14 @@ export default {
   mounted () {
     this.listeMouseUp()
     this.listeKeyboard()
-    this.$addBlock('test1', 'polygon', [
+    this.$addBlock('polygon', [
       [50, 50],
       [50, 100],
       [100, 100],
       [100, 50]
     ])
     setTimeout(() => {
-      this.$addBlock('test2', 'ellipse', [
+      this.$addBlock('ellipse', [
         [100, 100],
         [100, 150],
         [150, 150],
@@ -243,7 +301,7 @@ export default {
       ])
     }, 200)
     setTimeout(() => {
-      this.$addBlock('test3', 'rect', [
+      this.$addBlock('rect', [
         [200, 200],
         [200, 300],
         [300, 300],
@@ -253,12 +311,51 @@ export default {
   },
   beforeDestroy () {
     window.removeEventListener('mouseup', this.handlerMouseup)
-    window.removeEventListener('keydown', this.handlerMouseup)
-    window.removeEventListener('keyup', this.handlerMouseup)
+    window.removeEventListener('keydown', this.handlerKeydown)
+    window.removeEventListener('keyup', this.handlerKeyup)
   }
 }
 function deepClone (o) {
   return JSON.parse(JSON.stringify(o))
+}
+
+// 正方形变长方形
+function rect2sqre (paths, wDh) {
+  const arrX = paths.map(it => it[0])
+  const arrY = paths.map(it => it[1])
+  const minX = Math.min.apply(null, arrX)
+  const minY = Math.min.apply(null, arrY)
+  const maxX = Math.max.apply(null, arrX)
+  const maxY = Math.max.apply(null, arrY)
+  if (wDh > 1) {
+    maxY = maxY / wDh
+  } else {
+    maxY = maxX * wDh
+  }
+  return [
+    [minX, minY],
+    [minX, maxY],
+    [maxX, maxY],
+    [maxX, minY]
+  ]
+}
+
+// 长方形形变正方
+function sqre2rect (paths) {
+  const arrX = paths.map(it => it[0])
+  const arrY = paths.map(it => it[1])
+  const minX = Math.min.apply(null, arrX)
+  const minY = Math.min.apply(null, arrY)
+  const maxX = Math.max.apply(null, arrX)
+  const maxY = Math.max.apply(null, arrY)
+  const min = Math.min(minX, minY)
+  const max = Math.max(maxX, maxY)
+  return [
+    [min, min],
+    [min, max],
+    [max, max],
+    [max, min]
+  ]
 }
 </script>
 <style>
