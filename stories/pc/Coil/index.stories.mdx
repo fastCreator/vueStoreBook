@@ -1,0 +1,34 @@
+import {
+  Meta,
+  Story,
+  Props,
+  Preview,
+  Title,
+  DocsContainer
+} from '@storybook/addon-docs/blocks'
+import backgrounds from '../../../lib/backgrounds'
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport'
+
+import Coil from './src/index.vue'
+
+<Meta
+  title='web/线圈'
+  component={Coil}
+  parameters={{ viewport: { disable: true }, backgrounds: backgrounds }}
+/>
+
+<Title>Coil</Title>
+
+##### 基础用法
+
+<Preview>
+  <Story name='基础用法' height='420px'>
+    {{
+      components: { Coil },
+      template: '<Coil :width="400" :height="400"/>',
+      data () {
+        return {}
+      }
+    }}
+  </Story>
+</Preview>

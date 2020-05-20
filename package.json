@@ -12,6 +12,8 @@
     "vux": "^2.9.4"
   },
   "devDependencies": {
+    "less": "^3.11.1",
+    "less-loader": "^6.1.0",
     "@babel/core": "^7.9.6",
     "@babel/plugin-transform-modules-commonjs": "^7.9.6",
     "@storybook/addon-a11y": "^5.3.18",
