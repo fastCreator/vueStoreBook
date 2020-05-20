@@ -26,8 +26,9 @@
         v-for="(jt, j) in getShowPath(it)"
         :x="jt[0] - rectAttrs.width / 2"
         :y="jt[1] - rectAttrs.height / 2"
-        :key="j"
+        :key="jt.join(',')"
         v-bind="rectAttrs"
+        :class="jt.join(',') + it.square + j"
         @mousedown="handlerMousedown($event, i, j)"
       ></rect>
     </g>
@@ -103,7 +104,7 @@ export default {
       const block = this.blocks[this.selectedI]
       if (block && block[type]) {
         if (type === 'square') {
-          block.paths = sqre2rect(block.paths)
+          block.paths = sqre2rect(block.paths, this.mouseData.j)
         }
         this.$forceUpdate()
       }
@@ -147,8 +148,8 @@ export default {
       }
     },
     getShowPath ({ paths, square, type }) {
-      if (square && type !== 'polygon') {
-        return sqre2rect(paths)
+      if (square && type !== 'polygon' && this.mouseData) {
+        return sqre2rect(paths, this.mouseData.j)
       }
       return paths
     },
@@ -180,8 +181,8 @@ export default {
     },
     handlerMouseup () {
       if (this.mouseData) {
-        this.addHistory()
         this.endBlockStatus('square')
+        this.addHistory()
       }
       this.mouseData = null
     },
@@ -204,16 +205,17 @@ export default {
           if (type === 'polygon') {
             paths[j] = [ex, ey]
           } else {
-            const preJ = j - 1 < 0 ? 3 : j - 1
-            const nextJ = j + 1 > 3 ? 0 : j + 1
-            if (j % 2) {
-              paths[preJ] = [ex, paths[preJ][1]]
+            const preJ = getBN(j - 1)
+            const dJ = getBN(j + 2)
+            const nextJ = getBN(j + 1)
+            if (isOdd(paths, j)) {
+              paths[preJ] = [ex, paths[dJ][1]]
               paths[j] = [ex, ey]
-              paths[nextJ] = [paths[nextJ][0], ey]
+              paths[nextJ] = [paths[dJ][0], ey]
             } else {
-              paths[preJ] = [paths[preJ][0], ey]
+              paths[preJ] = [paths[dJ][0], ey]
               paths[j] = [ex, ey]
-              paths[nextJ] = [ex, paths[nextJ][1]]
+              paths[nextJ] = [ex, paths[dJ][1]]
             }
           }
         } else {
@@ -319,29 +321,10 @@ function deepClone (o) {
   return JSON.parse(JSON.stringify(o))
 }
 
-// 正方形变长方形
-function rect2sqre (paths, wDh) {
-  const arrX = paths.map(it => it[0])
-  const arrY = paths.map(it => it[1])
-  const minX = Math.min.apply(null, arrX)
-  const minY = Math.min.apply(null, arrY)
-  const maxX = Math.max.apply(null, arrX)
-  const maxY = Math.max.apply(null, arrY)
-  if (wDh > 1) {
-    maxY = maxY / wDh
-  } else {
-    maxY = maxX * wDh
-  }
-  return [
-    [minX, minY],
-    [minX, maxY],
-    [maxX, maxY],
-    [maxX, minY]
-  ]
-}
-
 // 长方形形变正方
-function sqre2rect (paths) {
+function sqre2rect (paths, i) {
+  i = getBN(i + 2)
+  const v = paths[i]
   const arrX = paths.map(it => it[0])
   const arrY = paths.map(it => it[1])
   const minX = Math.min.apply(null, arrX)
@@ -350,12 +333,59 @@ function sqre2rect (paths) {
   const maxY = Math.max.apply(null, arrY)
   const min = Math.min(minX, minY)
   const max = Math.max(maxX, maxY)
+  const d = Math.max(maxX - minX, maxY - minY)
+
+  if (v[0] === minX && v[1] === minY) {
+    return [
+      [v[0], v[1]],
+      [v[0] + d, v[1]],
+      [v[0] + d, v[1] + d],
+      [v[0], v[1] + d]
+    ]
+  }
+  if (v[0] === minX && v[1] === maxY) {
+    return [
+      [v[0], v[1] - d],
+      [v[0], v[1]],
+      [v[0] + d, v[1]],
+      [v[0] + d, v[1] - d]
+    ]
+  }
+  if (v[0] === maxX && v[1] === maxY) {
+    return [
+      [v[0] - d, v[1] - d],
+      [v[0] - d, v[1]],
+      [v[0], v[1]],
+      [v[0], v[1] - d]
+    ]
+  }
+
   return [
-    [min, min],
-    [min, max],
-    [max, max],
-    [max, min]
+    [v[0] - d, v[1]],
+    [v[0] - d, v[1] + d],
+    [v[0], v[1] + d],
+    [v[0], v[1]]
   ]
+}
+// 一大一小为中间
+function isOdd (paths, j) {
+  const block = paths[j]
+  const arrX = paths.map(it => it[0])
+  const arrY = paths.map(it => it[1])
+  const minX = Math.min.apply(null, arrX)
+  const minY = Math.min.apply(null, arrY)
+  const maxX = Math.max.apply(null, arrX)
+  const maxY = Math.max.apply(null, arrY)
+  if (
+    (block[0] === minX && block[1] === maxY) ||
+    (block[0] === maxX && block[1] === minY)
+  ) {
+    return true
+  }
+}
+
+function getBN (n, m = 4) {
+  return (n + 4) % 4
 }
 </script>
 <style>
