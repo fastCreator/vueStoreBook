@@ -36,6 +36,16 @@
 </template>
 
 <script>
+import {
+  getRectPath,
+  getEllipsePath,
+  sqre2rect,
+  moveDirec,
+  dragRactHorn,
+  deepClone,
+  DirecLenMap
+} from './shape'
+
 export default {
   name: 'Coil',
   props: {
@@ -71,6 +81,7 @@ export default {
     }
   },
   methods: {
+    // 操作
     $del () {
       if (this.selectedI >= 0) {
         this.blocks.splice(this.selectedI, 1)
@@ -93,22 +104,6 @@ export default {
         this.addHistory()
       }
     },
-    changeBlockStatus (type, bool) {
-      const block = this.blocks[this.selectedI]
-      if (block) {
-        block[type] = bool
-        this.$forceUpdate()
-      }
-    },
-    endBlockStatus (type) {
-      const block = this.blocks[this.selectedI]
-      if (block && block[type]) {
-        if (type === 'square') {
-          block.paths = sqre2rect(block.paths, this.mouseData.j)
-        }
-        this.$forceUpdate()
-      }
-    },
     $redu () {
       if (this.historyI > 0) {
         this.historyI--
@@ -121,6 +116,10 @@ export default {
         this.blocks = deepClone(this.history[this.historyI])
       }
     },
+    $addBlock (type, paths) {
+      this.blocks.push({ key: Date.now(), type, paths })
+      this.addHistory()
+    },
     addHistory () {
       let strB = JSON.stringify(this.blocks)
       if (JSON.stringify(this.history[this.historyI]) === strB) {
@@ -131,22 +130,6 @@ export default {
       this.history.push(blocks)
       this.historyI++
     },
-    $addBlock (type, paths) {
-      this.blocks.push({ key: Date.now(), type, paths })
-      this.addHistory()
-    },
-    blockMove (direc) {
-      const block = this.blocks[this.selectedI]
-      if (block && block.paths) {
-        const { paths } = block
-        const moveI = Number(direc === 'ArrowUp' || direc === 'ArrowDown')
-        const moveN = direc === 'ArrowUp' || direc === 'ArrowLeft' ? -1 : 1
-        paths.forEach(it => {
-          it[moveI] += moveN
-        })
-        this.$forceUpdate()
-      }
-    },
     getShowPath ({ paths, square, type }) {
       if (square && type !== 'polygon' && this.mouseData) {
         return sqre2rect(paths, this.mouseData.j)
@@ -155,19 +138,38 @@ export default {
     },
     getRectPath ({ paths, square, type }) {
       paths = this.getShowPath({ paths, square, type })
-      return `M${paths
-        .reduce((a, b) => `${a} L${b[0]} ${b[1]}`, '')
-        .slice(2)} Z`
+      return getRectPath({ paths, square, type })
     },
     getEllipsePath ({ paths, square, type }) {
       paths = this.getShowPath({ paths, square, type })
-      const p1 = paths[0]
-      const p2 = paths[2]
-      const cx = (p1[0] + p2[0]) / 2
-      const cy = (p1[1] + p2[1]) / 2
-      const rx = Math.abs(p1[0] - p2[0]) / 2
-      const ry = Math.abs(p1[1] - p2[1]) / 2
-      return { cx, cy, rx, ry }
+      return getEllipsePath({ paths, square, type })
+    },
+    // 改变图形状态
+    changeBlockStatus (type, bool) {
+      const block = this.blocks[this.selectedI]
+      if (block) {
+        block[type] = bool
+        this.$forceUpdate()
+      }
+    },
+    // 结束图形状态
+    endBlockStatus (type) {
+      const block = this.blocks[this.selectedI]
+      if (block && block[type]) {
+        if (type === 'square') {
+          block.paths = sqre2rect(block.paths, this.mouseData.j)
+        }
+        this.$forceUpdate()
+      }
+    },
+    //
+    blockMove (direc) {
+      const block = this.blocks[this.selectedI]
+      if (block && block.paths) {
+        const { paths } = block
+        block.paths = moveDirec(paths, DirecLenMap(direc))
+        this.$forceUpdate()
+      }
     },
     handlerMousedown (e, i, j) {
       const { paths } = this.blocks[i]
@@ -202,30 +204,20 @@ export default {
           const py = oPaths[j][1]
           const ex = mx + px
           const ey = my + py
+          // 多边形
           if (type === 'polygon') {
             paths[j] = [ex, ey]
           } else {
-            const preJ = getBN(j - 1)
-            const dJ = getBN(j + 2)
-            const nextJ = getBN(j + 1)
-            if (isOdd(paths, j)) {
-              paths[preJ] = [ex, paths[dJ][1]]
-              paths[j] = [ex, ey]
-              paths[nextJ] = [paths[dJ][0], ey]
-            } else {
-              paths[preJ] = [paths[dJ][0], ey]
-              paths[j] = [ex, ey]
-              paths[nextJ] = [ex, paths[dJ][1]]
-            }
+            dragRactHorn(paths, j, { ex, ey })
           }
         } else {
-          block.paths = oPaths.map(it => [mx + it[0], my + it[1]])
+          block.paths = moveDirec(oPaths, [mx, my])
         }
         this.$forceUpdate()
         e.stopPropagation()
       }
     },
-    polygonAddPath (e) {
+    addHorn (e) {
       const block = this.blocks[this.selectedI]
       if (block && block.type === 'polygon') {
         block.paths.push([e.offsetX, e.offsetY])
@@ -233,7 +225,7 @@ export default {
     },
     handlerClick (e) {
       if (e.target.tagName === 'svg') {
-        this.polygonAddPath(e)
+        this.addHorn(e)
       }
     },
     handlerKeydown (e) {
@@ -316,76 +308,6 @@ export default {
     window.removeEventListener('keydown', this.handlerKeydown)
     window.removeEventListener('keyup', this.handlerKeyup)
   }
-}
-function deepClone (o) {
-  return JSON.parse(JSON.stringify(o))
-}
-
-// 长方形形变正方
-function sqre2rect (paths, i) {
-  i = getBN(i + 2)
-  const v = paths[i]
-  const arrX = paths.map(it => it[0])
-  const arrY = paths.map(it => it[1])
-  const minX = Math.min.apply(null, arrX)
-  const minY = Math.min.apply(null, arrY)
-  const maxX = Math.max.apply(null, arrX)
-  const maxY = Math.max.apply(null, arrY)
-  const min = Math.min(minX, minY)
-  const max = Math.max(maxX, maxY)
-  const d = Math.max(maxX - minX, maxY - minY)
-
-  if (v[0] === minX && v[1] === minY) {
-    return [
-      [v[0], v[1]],
-      [v[0] + d, v[1]],
-      [v[0] + d, v[1] + d],
-      [v[0], v[1] + d]
-    ]
-  }
-  if (v[0] === minX && v[1] === maxY) {
-    return [
-      [v[0], v[1] - d],
-      [v[0], v[1]],
-      [v[0] + d, v[1]],
-      [v[0] + d, v[1] - d]
-    ]
-  }
-  if (v[0] === maxX && v[1] === maxY) {
-    return [
-      [v[0] - d, v[1] - d],
-      [v[0] - d, v[1]],
-      [v[0], v[1]],
-      [v[0], v[1] - d]
-    ]
-  }
-
-  return [
-    [v[0] - d, v[1]],
-    [v[0] - d, v[1] + d],
-    [v[0], v[1] + d],
-    [v[0], v[1]]
-  ]
-}
-// 一大一小为中间
-function isOdd (paths, j) {
-  const block = paths[j]
-  const arrX = paths.map(it => it[0])
-  const arrY = paths.map(it => it[1])
-  const minX = Math.min.apply(null, arrX)
-  const minY = Math.min.apply(null, arrY)
-  const maxX = Math.max.apply(null, arrX)
-  const maxY = Math.max.apply(null, arrY)
-  if (
-    (block[0] === minX && block[1] === maxY) ||
-    (block[0] === maxX && block[1] === minY)
-  ) {
-    return true
-  }
-}
-
-function getBN (n, m = 4) {
-  return (n + 4) % 4
 }
 </script>
 <style>
