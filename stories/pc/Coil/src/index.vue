@@ -8,7 +8,12 @@
     @mousemove="handlerMousemove"
     @click="handlerClick"
   >
-    <g class="block" v-bind="pathAttrs" v-for="(it, i) in blocks" :key="it.key">
+    <g
+      class="block"
+      v-bind="pathAttrs"
+      v-for="(it, i) in blocks"
+      :key="it.key"
+    >
       <ellipse
         v-if="it.type === 'ellipse'"
         v-bind="getEllipsePath(it)"
@@ -21,16 +26,17 @@
         @click.stop="selecteBlock(i)"
         @mousedown="handlerMousedown($event, i)"
       />
-      <rect
-        v-if="selectedI === i"
-        v-for="(jt, j) in getShowPath(it)"
-        :x="jt[0] - rectAttrs.width / 2"
-        :y="jt[1] - rectAttrs.height / 2"
-        :key="jt.join(',')"
-        v-bind="rectAttrs"
-        :class="jt.join(',') + it.square + j"
-        @mousedown="handlerMousedown($event, i, j)"
-      ></rect>
+      <g v-if="selectedI === i">
+        <rect
+          v-for="(jt, j) in getShowPath(it)"
+          :x="jt[0] - rectAttrs.width / 2"
+          :y="jt[1] - rectAttrs.height / 2"
+          :key="jt.join(',')"
+          v-bind="rectAttrs"
+          :class="jt.join(',') + it.square + j"
+          @mousedown="handlerMousedown($event, i, j)"
+        ></rect>
+      </g>
     </g>
   </svg>
 </template>
@@ -199,7 +205,7 @@ export default {
         const { type, paths } = block
         const mx = clientX - x
         const my = clientY - y
-        if (j !== undefined) {
+        if (j !== undefined) { // 拖动脚
           const px = oPaths[j][0]
           const py = oPaths[j][1]
           const ex = mx + px
@@ -208,9 +214,13 @@ export default {
           if (type === 'polygon') {
             paths[j] = [ex, ey]
           } else {
-            dragRactHorn(paths, j, { ex, ey })
+            if (this.keyStatus.Ctrl) {
+              dragRactHornRate(paths, oPaths, j, { mx, my, px, py })
+            } else {
+              dragRactHorn(paths, j, { ex, ey })
+            }
           }
-        } else {
+        } else { // 整体拖动
           block.paths = moveDirec(oPaths, [mx, my])
         }
         this.$forceUpdate()
@@ -276,7 +286,7 @@ export default {
       window.addEventListener('keyup', this.handlerKeyup)
     }
   },
-  async created () {},
+  async created () { },
   mounted () {
     this.listeMouseUp()
     this.listeKeyboard()

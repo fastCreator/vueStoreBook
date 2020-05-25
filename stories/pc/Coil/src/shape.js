@@ -82,6 +82,16 @@ export function dragRactHorn (paths, j, { ex, ey }) {
   return paths
 }
 
+// 矩形拖动对角-保持宽高比
+export function dragRactHornRate (paths, oPaths, j, { moveX, moveY, px, py }) {
+  const { w, h } = getShapeInfo(paths)
+  const wDh = w / h
+  if (moveX > moveY) {
+    ex
+  }
+  return dragRactHorn(paths, j, { ex, ey })
+}
+
 // 获取对应角的位置
 export function getHornN (n, m = 4) {
   return (n + m) % m

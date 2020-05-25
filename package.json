@@ -2,6 +2,11 @@
   "name": "vue-store-book",
   "version": "0.0.1",
   "description": "Vue UI 组件库",
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "deploy": "gh-pages -d storybook-static"
+  },
   "dependencies": {
     "babel-loader": "^8.1.0",
     "element-ui": "^2.13.1",
@@ -29,11 +34,6 @@
     "gh-pages": "^2.2.0",
     "lerna": "^3.21.0",
     "mint-ui": "^2.2.13"
-  },
-  "scripts": {
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "deploy": "gh-pages -d storybook-static"
   },
   "repository": {
     "type": "git",
