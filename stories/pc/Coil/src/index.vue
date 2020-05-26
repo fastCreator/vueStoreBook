@@ -17,21 +17,19 @@
       <ellipse
         v-if="it.type === 'ellipse'"
         v-bind="getEllipsePath(it)"
-        @click="selecteBlock(i)"
         @mousedown="handlerMousedown($event, i)"
       />
       <path
         v-else
-        :d="getRectPath(it)"
-        @click.stop="selecteBlock(i)"
         @mousedown="handlerMousedown($event, i)"
+        :d="getRectPath(it)"
       />
       <g v-if="selectedI === i">
         <rect
           v-for="(jt, j) in getShowPath(it)"
           :x="jt[0] - rectAttrs.width / 2"
           :y="jt[1] - rectAttrs.height / 2"
-          :key="jt.join(',')"
+          :key="`${i},${j}`"
           v-bind="rectAttrs"
           :class="jt.join(',') + it.square + j"
           @mousedown="handlerMousedown($event, i, j)"
@@ -48,9 +46,14 @@ import {
   sqre2rect,
   moveDirec,
   dragRactHorn,
-  deepClone,
   DirecLenMap
-} from './shape'
+} from './lib/shape'
+
+import { deepClone } from './lib/utils'
+
+import history from './lib/history'
+import keyboard from './lib/keyboard'
+import mouse from './lib/mouse'
 
 export default {
   name: 'Coil',
@@ -76,65 +79,57 @@ export default {
       default: '100%'
     }
   },
+  mixins: [history, keyboard, mouse],
   data () {
     return {
-      keyStatus: {},
+      key: 0,
       selectedI: null,
-      historyI: 0,
-      history: [[]],
       blocks: [],
-      mouseData: null
+      copyBlock: null
     }
   },
   methods: {
-    // 操作
-    $del () {
-      if (this.selectedI >= 0) {
-        this.blocks.splice(this.selectedI, 1)
-        this.addHistory()
-        this.selectedI = -1
+    // 设置当前所有展示
+    $setBlocks (blocks) {
+      if (blocks) {
+        this.blocks = blocks
       }
     },
-    $copy () {
-      if (this.selectedI >= 0) {
-        this.copyBlock = deepClone(this.blocks[this.selectedI])
-      }
-    },
-    $cut () {
-      this.$copy()
-      this.$del()
-    },
-    $paste () {
-      if (this.copyBlock) {
-        this.blocks.push({ ...this.copyBlock, key: Date.now() })
-        this.addHistory()
-      }
-    },
-    $redu () {
-      if (this.historyI > 0) {
-        this.historyI--
-        this.blocks = deepClone(this.history[this.historyI])
-      }
-    },
-    $unRedu () {
-      if (this.historyI < this.history.length - 1) {
-        this.historyI++
-        this.blocks = deepClone(this.history[this.historyI])
-      }
-    },
+    // 添加一个块
     $addBlock (type, paths) {
-      this.blocks.push({ key: Date.now(), type, paths })
+      this.blocks.push({ key: this.key++, type, paths })
       this.addHistory()
     },
-    addHistory () {
-      let strB = JSON.stringify(this.blocks)
-      if (JSON.stringify(this.history[this.historyI]) === strB) {
-        return false
+    // 模块上下左右移动
+    $blockMove (direc) {
+      const block = this.blocks[this.selectedI]
+      if (block && block.paths) {
+        const { paths } = block
+        block.paths = moveDirec(paths, DirecLenMap(direc))
+        this.$forceUpdate()
       }
-      let blocks = JSON.parse(strB)
-      this.history = this.history.slice(0, this.historyI + 1)
-      this.history.push(blocks)
-      this.historyI++
+    },
+    // 设置当前选中模块
+    $selecteBlock ({ i, key }) {
+      this.selectedI = i
+    },
+    // 改变图形状态
+    changeBlockStatus (type, bool) {
+      const block = this.blocks[this.selectedI]
+      if (block && block.type !== "polygon") {
+        block[type] = bool
+        this.$forceUpdate()
+      }
+    },
+    // 结束图形状态
+    endBlockStatus (type) {
+      const block = this.blocks[this.selectedI]
+      if (block && block[type]) {
+        if (type === 'square') {
+          block.paths = sqre2rect(block.paths, this.mouseData.j)
+        }
+        this.$forceUpdate()
+      }
     },
     getShowPath ({ paths, square, type }) {
       if (square && type !== 'polygon' && this.mouseData) {
@@ -150,83 +145,7 @@ export default {
       paths = this.getShowPath({ paths, square, type })
       return getEllipsePath({ paths, square, type })
     },
-    // 改变图形状态
-    changeBlockStatus (type, bool) {
-      const block = this.blocks[this.selectedI]
-      if (block) {
-        block[type] = bool
-        this.$forceUpdate()
-      }
-    },
-    // 结束图形状态
-    endBlockStatus (type) {
-      const block = this.blocks[this.selectedI]
-      if (block && block[type]) {
-        if (type === 'square') {
-          block.paths = sqre2rect(block.paths, this.mouseData.j)
-        }
-        this.$forceUpdate()
-      }
-    },
-    //
-    blockMove (direc) {
-      const block = this.blocks[this.selectedI]
-      if (block && block.paths) {
-        const { paths } = block
-        block.paths = moveDirec(paths, DirecLenMap(direc))
-        this.$forceUpdate()
-      }
-    },
-    handlerMousedown (e, i, j) {
-      const { paths } = this.blocks[i]
-      this.mouseData = {
-        x: e.clientX,
-        y: e.clientY,
-        i,
-        j,
-        oPaths: deepClone(paths)
-      }
-    },
-    handlerMouseup () {
-      if (this.mouseData) {
-        this.endBlockStatus('square')
-        this.addHistory()
-      }
-      this.mouseData = null
-    },
-    selecteBlock (i) {
-      this.selectedI = i
-    },
-    handlerMousemove (e) {
-      if (this.mouseData) {
-        const { x, y, oPaths, i, j } = this.mouseData
-        const { clientX, clientY } = e
-        const block = this.blocks[i]
-        const { type, paths } = block
-        const mx = clientX - x
-        const my = clientY - y
-        if (j !== undefined) { // 拖动脚
-          const px = oPaths[j][0]
-          const py = oPaths[j][1]
-          const ex = mx + px
-          const ey = my + py
-          // 多边形
-          if (type === 'polygon') {
-            paths[j] = [ex, ey]
-          } else {
-            if (this.keyStatus.Ctrl) {
-              dragRactHornRate(paths, oPaths, j, { mx, my, px, py })
-            } else {
-              dragRactHorn(paths, j, { ex, ey })
-            }
-          }
-        } else { // 整体拖动
-          block.paths = moveDirec(oPaths, [mx, my])
-        }
-        this.$forceUpdate()
-        e.stopPropagation()
-      }
-    },
+
     addHorn (e) {
       const block = this.blocks[this.selectedI]
       if (block && block.type === 'polygon') {
@@ -237,59 +156,10 @@ export default {
       if (e.target.tagName === 'svg') {
         this.addHorn(e)
       }
-    },
-    handlerKeydown (e) {
-      const { key } = e
-      this.keyStatus[key] = true
-      if (this.keyStatus.Meta || this.keyStatus.Control) {
-        if (key === 'z') {
-          this.$redu()
-        } else if (key === 'y') {
-          this.$unRedu()
-        } else if (
-          key === 'ArrowUp' ||
-          key === 'ArrowDown' ||
-          key === 'ArrowLeft' ||
-          key === 'ArrowRight'
-        ) {
-          this.blockMove(key)
-        } else if (key === 'Backspace') {
-          this.$del()
-        } else if (key === 'c') {
-          this.$copy()
-        } else if (key === 'x') {
-          this.$cut()
-        } else if (key === 'v') {
-          this.$paste()
-        }
-        e.stopPropagation()
-      } else if (this.mouseData) {
-        if (key === 'Shift') {
-          this.changeBlockStatus('square', true)
-        }
-      }
-    },
-    handlerKeyup (e) {
-      const { key } = e
-      this.keyStatus[key] = false
-      if (key === 'Meta' || key === 'Control') {
-        this.addHistory()
-      } else if (key === 'Shift') {
-        this.changeBlockStatus('square', false)
-      }
-    },
-    listeMouseUp () {
-      window.addEventListener('mouseup', this.handlerMouseup)
-    },
-    listeKeyboard () {
-      window.addEventListener('keydown', this.handlerKeydown)
-      window.addEventListener('keyup', this.handlerKeyup)
     }
   },
   async created () { },
   mounted () {
-    this.listeMouseUp()
-    this.listeKeyboard()
     this.$addBlock('polygon', [
       [50, 50],
       [50, 100],
@@ -303,7 +173,7 @@ export default {
         [150, 150],
         [150, 100]
       ])
-    }, 200)
+    }, 10)
     setTimeout(() => {
       this.$addBlock('rect', [
         [200, 200],
@@ -312,20 +182,11 @@ export default {
         [300, 200]
       ])
     }, 20)
-  },
-  beforeDestroy () {
-    window.removeEventListener('mouseup', this.handlerMouseup)
-    window.removeEventListener('keydown', this.handlerKeydown)
-    window.removeEventListener('keyup', this.handlerKeyup)
   }
 }
 </script>
 <style>
 .coil {
-  background-image: url(
-    https://dss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3632971942,
-    971319411&fm=115&gp=0.jpg
-  );
   background-size: 100% 100%;
 }
 .coil .block rect {
