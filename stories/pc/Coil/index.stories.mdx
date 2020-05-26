@@ -25,9 +25,34 @@ import Coil from './src/index.vue'
   <Story name='基础用法' height='420px'>
     {{
       components: { Coil },
-      template: '<Coil :width="400" :height="400"/>',
+      template: '<Coil :width="400" :height="400" ref="coil"/>',
       data () {
         return {}
+      },
+      mounted (){
+        const coil = this.$refs.coil
+        coil.$addBlock('polygon', [
+          [50, 50],
+          [50, 100],
+          [100, 100],
+          [100, 50]
+        ])
+        setTimeout(() => {
+          coil.$addBlock('ellipse', [
+            [100, 100],
+            [100, 150],
+            [150, 150],
+            [150, 100]
+          ])
+        }, 10)
+        setTimeout(() => {
+          coil.$addBlock('rect', [
+            [200, 200],
+            [200, 300],
+            [300, 300],
+            [300, 200]
+          ])
+        }, 20)
       }
     }}
   </Story>

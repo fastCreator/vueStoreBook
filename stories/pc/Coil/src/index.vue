@@ -160,36 +160,16 @@ export default {
   },
   async created () { },
   mounted () {
-    this.$addBlock('polygon', [
-      [50, 50],
-      [50, 100],
-      [100, 100],
-      [100, 50]
-    ])
-    setTimeout(() => {
-      this.$addBlock('ellipse', [
-        [100, 100],
-        [100, 150],
-        [150, 150],
-        [150, 100]
-      ])
-    }, 10)
-    setTimeout(() => {
-      this.$addBlock('rect', [
-        [200, 200],
-        [200, 300],
-        [300, 300],
-        [300, 200]
-      ])
-    }, 20)
   }
 }
 </script>
-<style>
+
+<style lang="less">
 .coil {
-  background-size: 100% 100%;
-}
-.coil .block rect {
-  cursor: pointer;
+  .block {
+    rect {
+      cursor: pointer;
+    }
+  }
 }
 </style>

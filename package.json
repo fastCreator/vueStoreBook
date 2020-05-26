@@ -9,16 +9,16 @@
   },
   "dependencies": {
     "babel-loader": "^8.1.0",
+    "css-loader": "^3.5.3",
     "element-ui": "^2.13.1",
     "marked": "^1.0.0",
+    "style-loader": "^1.2.1",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.2",
     "vue-template-compiler": "^2.6.11",
     "vux": "^2.9.4"
   },
   "devDependencies": {
-    "less": "^3.11.1",
-    "less-loader": "^6.1.0",
     "@babel/core": "^7.9.6",
     "@babel/plugin-transform-modules-commonjs": "^7.9.6",
     "@storybook/addon-a11y": "^5.3.18",
@@ -33,6 +33,8 @@
     "babel-preset-vue": "^2.0.2",
     "gh-pages": "^2.2.0",
     "lerna": "^3.21.0",
+    "less": "^3.11.1",
+    "less-loader": "^6.1.0",
     "mint-ui": "^2.2.13"
   },
   "repository": {
