@@ -25,34 +25,54 @@ import Coil from './src/index.vue'
   <Story name='基础用法' height='420px'>
     {{
       components: { Coil },
-      template: '<Coil :width="400" :height="400" ref="coil"/>',
+      template: `<div>
+        <Coil :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg"/>
+        <div>
+          <button v-for="(it,i) in btns" 
+            :key="i" 
+            type="button" 
+            @click="addShape(it.name)" 
+            :style="{background:state === it.name ? '#ccc' :'#fff'}"
+            >
+              {{it.label}}
+          </button>
+        </div>
+      </div>`,
       data () {
-        return {}
+        return {
+          state:null,
+          btns:[
+            {
+              label:'多边形',
+              name:'polygon'
+            },
+            {
+              label:'矩形',
+              name:'rect'
+            },
+            {
+              label:'圆形',
+              name:'ellipse'
+            },
+            {
+              label:'打点',
+              name:'dot'
+            }
+          ]
+        }
+      },
+      methods:{
+        addShape(type){
+          const coil = this.$refs.coil
+          let t = null
+          if(this.state !== type){
+            t = type
+          }
+          this.state = t
+          coil.$setState(t)
+        }
       },
       mounted (){
-        const coil = this.$refs.coil
-        coil.$addBlock('polygon', [
-          [50, 50],
-          [50, 100],
-          [100, 100],
-          [100, 50]
-        ])
-        setTimeout(() => {
-          coil.$addBlock('ellipse', [
-            [100, 100],
-            [100, 150],
-            [150, 150],
-            [150, 100]
-          ])
-        }, 10)
-        setTimeout(() => {
-          coil.$addBlock('rect', [
-            [200, 200],
-            [200, 300],
-            [300, 300],
-            [300, 200]
-          ])
-        }, 20)
       }
     }}
   </Story>
