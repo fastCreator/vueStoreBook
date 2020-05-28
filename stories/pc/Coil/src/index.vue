@@ -44,8 +44,8 @@
       <text
         v-else
         v-bind="textAttrs"
-        :x="coordinateXX(it)+4"
-        :y="coordinateXY(it)+4"
+        :x="coordinateX(it)+4"
+        :y="coordinateY(it)+4"
         text-anchor="start"
         dominant-baseline="hanging"
       >{{i+1}}</text>
