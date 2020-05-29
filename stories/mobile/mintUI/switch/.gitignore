@@ -3,5 +3,5 @@ node_modules
 .idea/*
 .DS_Store*
 .vscode
-lib
+/lib
 package-lock.json
