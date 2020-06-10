@@ -1,0 +1,54 @@
+import {
+  Meta,
+  Story,
+  Props,
+  Preview,
+  Title,
+  DocsContainer
+} from '@storybook/addon-docs/blocks'
+import backgrounds from '../../../lib/backgrounds'
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport'
+import './index.css'
+import ContextMenu from './src/index.vue'
+
+<Meta
+  title='web/自定义菜单'
+  component={ContextMenu}
+  parameters={{ viewport: { disable: true }, backgrounds: backgrounds }}
+/>
+
+<Title>ContextMenu</Title>
+
+##### 基础用法
+
+<Preview>
+  <Story name='基础用法' height='420px'>
+    {{
+      components: { ContextMenu },
+      template: `<ContextMenu><div class="box"></div></ContextMenu>`,
+      data () {
+        return {
+          iconClass:'iconfont',
+          menu:[
+            {
+              label:'选择图层',
+              child:[
+                {
+                  icon:'icon-tupian',
+                  label:'图片',
+                  click(){
+                    alert(1)
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      methods:{
+      },
+      mounted (){
+      }
+    }}
+  </Story>
+</Preview>

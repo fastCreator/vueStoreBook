@@ -1,13 +1,13 @@
 {
-  "name": "@vue-uis/elpand-select",
-  "version": "0.0.1",
+  "name": "@vue-uis/Coil",
+  "version": "0.0.3",
   "description": "element扩展select组件",
   "main": "index.common.min.js",
   "module": "src/index.js",
   "browser": "lib/index.umd.min.js",
   "private": false,
   "scripts": {
-    "build": "vue-cli-service build --target lib --dest lib --name index src/index.js",
+    "build": "vue build --target lib --dest lib --name Coil src/index.js",
     "pub": "npm run build && npm publish"
   },
   "files": [
@@ -19,5 +19,20 @@
   "peerDependencies": {
     "element-ui": "^2.13.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+    ],
+    "rules": {
+      "no-unused-vars": 0,
+      "use-isnan": 0,
+      "no-debugger": 0
+    },
+    "parserOptions": {
+    }
+  }
 }

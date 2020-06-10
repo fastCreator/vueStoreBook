@@ -54,7 +54,7 @@ export default {
           key === 'ArrowRight'
         ) {
           this.$blockMove(key)
-        } else if (key === 'd') {
+        } else if (key === 'Backspace') {
           this.$del()
         } else if (key === 'c') {
           this.$copy()
@@ -62,13 +62,8 @@ export default {
           this.$cut()
         } else if (key === 'v') {
           this.$paste()
-        } else if (key === '-') {
-          this.$zoomOut()
-        } else if (key === '=') {
-          this.$zoomIn()
         }
         e.stopPropagation()
-        event.preventDefault()
         return
       }
       if (this.mouseData) {

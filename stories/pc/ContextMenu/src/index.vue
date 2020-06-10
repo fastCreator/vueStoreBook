@@ -7,7 +7,7 @@
     :height="height"
     @mousedown="drawBlock"
     @mousemove="handlerMousemove"
-    :style="{backgroundImage:`url(${src})`,zoom:zoom}"
+    :style="{backgroundImage:`url(${src})`}"
   >
     <g
       class="block"
@@ -118,7 +118,6 @@ export default {
   mixins: [history, keyboard, mouse],
   data () {
     return {
-      zoom:1,
       width: 0,
       height: 0,
       key: 0,
@@ -129,14 +128,6 @@ export default {
     }
   },
   methods: {
-    // 放大
-    $zoomIn(){
-      this.zoom*=1.1
-    },
-    // 缩小
-    $zoomOut(){
-      this.zoom*=0.9
-    },
     fillBlock (block) {
       if (!block.waitClose || block.type !== 'polygon') {
         return this.pathAttrs.fill

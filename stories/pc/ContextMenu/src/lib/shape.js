@@ -98,6 +98,9 @@ export function dragRactHornRate (paths, j, { wDh, mx, my, px, py }) {
   } else { // 按Y轴拉
     ex = dx + h * wDh * q
   }
+  if(ey == NaN || ex == NaN){
+    debugger
+  }
   return dragRactHorn(paths, j, { ex, ey })
 }
 
