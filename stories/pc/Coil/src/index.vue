@@ -23,16 +23,17 @@
         :cy="it.paths[1]"
       ></circle>
       <ellipse
+        :style="getRoateStyle(it)"
         v-else-if="it.type === 'ellipse'"
         v-bind="getEllipsePath(it)"
         @mousedown.stop="handlerMousedown($event, i)"
       />
       <path
         v-else
+        :style="getRoateStyle(it)"
         @mousedown.stop="handlerMousedown($event, i)"
         :d="getRectPath(it)"
       />
-
       <text
         v-if="it.type === 'dot'"
         v-bind="textAttrs"
@@ -49,7 +50,8 @@
         text-anchor="start"
         dominant-baseline="hanging"
       >{{i+1}}</text>
-      <g v-if="selectedI === i && it.type!=='dot'">
+      <g v-if="selectedI === i && it.type!=='dot'" :style="getRoateStyle(it)">
+        <image v-if="it.type==='ellipse' || it.type==='rect'" @mousedown.stop="handlerRotate($event, i)" class="rotate" :x="(it.paths[0][0] + it.paths[3][0])/2 -10" :y="it.paths[0][1]-30" width="20" height="20" xlink:href="./img/rotate.png"/>
         <rect
           v-for="(jt, j) in getShowPath(it)"
           :x="jt[0] - rectAttrs.width / 2"
@@ -73,7 +75,7 @@ import {
   dragRactHorn,
   DirecLenMap
 } from './lib/shape'
-
+import {rotateIcon} from './icon'
 import { deepClone } from './lib/utils'
 
 import history from './lib/history'
@@ -118,9 +120,15 @@ export default {
       required: true
     }
   },
+  watch:{
+    blocks(v){
+      console.log(v)
+    }
+  },
   mixins: [history, keyboard, mouse],
   data () {
     return {
+      rotateIcon,
       zoom:1,
       width: 0,
       height: 0,
@@ -132,6 +140,12 @@ export default {
     }
   },
   methods: {
+    // 获取旋转值
+    getRoateStyle(it){
+      if(it.type === 'ellipse' || it.type === 'rect'){
+        return `transform: rotate(${it.rotate}deg);transform-origin:${(it.paths[0][0] + it.paths[2][0])/2}px ${(it.paths[0][1] + it.paths[2][1])/2}px`
+      }
+    },
     // 放大
     $zoomIn(){
       this.zoom*=1.1
@@ -189,7 +203,7 @@ export default {
     },
     // 添加一个块
     $addBlock (type, paths, data) {
-      this.blocks.push({ key: this.key++, type, paths, ...data })
+      this.blocks.push({ key: this.key++, type, paths, ...data,rotate:0 })
       this.selectedI = this.blocks.length - 1
     },
     // 模块上下左右移动
@@ -277,10 +291,16 @@ export default {
 <style lang="less">
 .coil {
   user-select: none;
+  .icon-roate{
+    
+  }
   .block {
     rect {
       cursor: pointer;
     }
+  }
+  .rotate{
+    cursor: -webkit-grab;
   }
 }
 </style>

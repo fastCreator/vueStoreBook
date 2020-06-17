@@ -11,9 +11,21 @@ export default {
     }
   },
   methods: {
+    handlerRotate (e, i) {
+      const block = this.blocks[i]
+      const { paths } = this.blocks[i]
+      const rect = e.target.parentNode.parentNode.children[0]
+      const box = rect.getBoundingClientRect()
+      this.mouseData = {
+        rotate: true,
+        i,
+        x: box.left + box.width / 2,
+        y: box.top + box.height / 2,
+      }
+    },
     handlerMousedown (e, i, j) {
       const block = this.blocks[i]
-      if (j === 0 && block.type=== 'polygon') {
+      if (j === 0 && block.type === 'polygon') {
         this.blocks[i].waitClose = false
         return false
       }
@@ -36,13 +48,24 @@ export default {
     },
     handlerMousemove (e) {
       if (this.mouseData) {
-        const { x, y, oPaths, i, j } = this.mouseData
+        const { x, y, oPaths, i, j, rotate } = this.mouseData
         const { clientX, clientY } = e
         const block = this.blocks[i]
         const { type, paths } = block
         const mx = clientX - x
         const my = clientY - y
-        if (j !== undefined) { // 拖动脚
+
+        if (rotate) {
+          let rotate
+          if (my < 0) {
+            rotate = Math.atan(-mx / my) * 180 / Math.PI
+          } else {
+            rotate = Math.atan(-mx / my) * 180 / Math.PI + 180
+          }
+
+          this.blocks[i].rotate = rotate
+          return false
+        } else if (j !== undefined) { // 拖动脚
           const px = oPaths[j][0]
           const py = oPaths[j][1]
           const ex = mx + px
