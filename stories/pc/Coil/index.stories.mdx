@@ -75,13 +75,13 @@ import Coil from './src/index.vue'
       methods:{
         changeBlocks(v){
           console.log(v)
-          const info = v.map(({type,paths})=>{
+          const info = v.map(({type,paths,rotate})=>{
             console.log(type)
             let o = {}
             if(type==='ellipse'){
-              o = {type,data:JSON.stringify(this.path2ellipse(paths))}
+              o = {type,data:JSON.stringify(this.path2ellipse(paths,rotate))}
             }else if(type==='rect'){
-              o = {type,data:JSON.stringify(this.path2rect(paths))}
+              o = {type,data:JSON.stringify(this.path2rect(paths,rotate))}
             }else {
               o = {type,data:JSON.stringify(paths)}
             }
@@ -89,20 +89,22 @@ import Coil from './src/index.vue'
           })
           this.info = JSON.stringify(info,null,2)
         },
-        path2ellipse(paths){
+        path2ellipse(paths,rotate){
           return {
-            cx:(paths[0][0]+paths[3][0])/2, 
-            cx:(paths[0][1]+paths[1][1])/2,
-            rx:(paths[3][0]-paths[0][0])/2,
-            ry:(paths[1][1]-paths[0][1])/2
+            cx:parseInt((paths[0][0]+paths[3][0])/2), 
+            cy:parseInt((paths[0][1]+paths[1][1])/2),
+            rx:parseInt((paths[3][0]-paths[0][0])/2),
+            ry:parseInt((paths[1][1]-paths[0][1])/2),
+            rotate:parseInt(rotate)
           }
         },
-        path2rect(paths){
+        path2rect(paths,rotate){
           return {
-            left:paths[0][0],
-            top:paths[0][1],
-            width:paths[3][0]-paths[0][0],
-            height:paths[1][1]-paths[0][1],
+            left:parseInt(paths[0][0]),
+            top:parseInt(paths[0][1]),
+            width:parseInt(paths[3][0]-paths[0][0]),
+            height:parseInt(paths[1][1]-paths[0][1]),
+            rotate:parseInt(rotate)
           }
         },
         selectTool(t){

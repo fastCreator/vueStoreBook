@@ -47,6 +47,7 @@
         v-bind="textAttrs"
         :x="coordinateX(it)+4"
         :y="coordinateY(it)+4"
+        :style="getRoateStyle(it)"
         text-anchor="start"
         dominant-baseline="hanging"
       >{{i+1}}</text>
