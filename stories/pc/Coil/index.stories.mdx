@@ -6,9 +6,10 @@ import {
   Title,
   DocsContainer
 } from '@storybook/addon-docs/blocks'
+import clip from './plugin/clip.js'
 import backgrounds from '../../../lib/backgrounds'
 import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport'
-
+import imgURL from './test.jpg'
 import Coil from './src/index.vue'
 
 <Meta
@@ -26,8 +27,9 @@ import Coil from './src/index.vue'
     {{
       components: { Coil },
       template: `<div>
-        <Coil @selectTool="selectTool" @changeBlocks="changeBlocks" :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg" :ctrln="ctrln"/>
+        <Coil @selectTool="selectTool" @changeBlocks="changeBlocks" :width="400" :height="400" ref="coil" :src="imgURL" :ctrln="ctrln"/>
         <pre style="position: absolute;right: 0;top: 0;">{{info}}</pre>
+        <img v-for="it in urls" :src="it"/>
         <div>
           <button v-for="(it,i) in btns" 
             :key="i" 
@@ -37,6 +39,7 @@ import Coil from './src/index.vue'
             >
               {{it.label}}
           </button>
+          <button @click="clip">剪切</button>
         </div>
         <div>快捷键</div>
         <p>Ctrl+z、Ctrl+y 历史记录控制</p>
@@ -49,9 +52,12 @@ import Coil from './src/index.vue'
       </div>`,
       data () {
         return {
+          imgURL:imgURL,
           ctrln:['polygon','rect','ellipse','dot'],
           state:null,
           info:[],
+          urls:[],
+          originInfo:[],
           btns:[
             {
               label:'多边形',
@@ -73,20 +79,22 @@ import Coil from './src/index.vue'
         }
       },
       methods:{
+        async clip(){
+          this.urls = await clip(this.imgURL,this.originInfo.filter(it=>it.type !=='dot'))
+        },
         changeBlocks(v){
-          console.log(v)
           const info = v.map(({type,paths,rotate})=>{
-            console.log(type)
             let o = {}
             if(type==='ellipse'){
-              o = {type,data:JSON.stringify(this.path2ellipse(paths,rotate))}
+              o = {type,data:this.path2ellipse(paths,rotate)}
             }else if(type==='rect'){
-              o = {type,data:JSON.stringify(this.path2rect(paths,rotate))}
+              o = {type,data:this.path2rect(paths,rotate)}
             }else {
-              o = {type,data:JSON.stringify(paths)}
+              o = {type,data:paths}
             }
             return o
           })
+          this.originInfo = v
           this.info = JSON.stringify(info,null,2)
         },
         path2ellipse(paths,rotate){
