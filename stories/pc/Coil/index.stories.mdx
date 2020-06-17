@@ -26,7 +26,7 @@ import Coil from './src/index.vue'
     {{
       components: { Coil },
       template: `<div>
-        <Coil :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg"/>
+        <Coil @selectTool="selectTool" :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg" :ctrln="ctrln"/>
         <div>
           <button v-for="(it,i) in btns" 
             :key="i" 
@@ -41,12 +41,14 @@ import Coil from './src/index.vue'
         <p>Ctrl+z、Ctrl+y 历史记录控制</p>
         <p>Ctrl +、Ctrl - 控制缩放</p>
         <p>Ctrl+c、Ctrl+v 、Ctrl+x、Ctrl+d 复制、删除</p>
+        <p>Ctrl+1、Ctrl+2 、Ctrl+3、Ctrl+4 选中对应工具</p>
         <p>拖动角+Shift 矩形、圆形正规化拖拽</p>
         <p>拖动角+Ctrl 保持比例拖拽</p>
         <p>拖动角+alt 快速复制 并拖动</p>
       </div>`,
       data () {
         return {
+          ctrln:['polygon','rect','ellipse','dot'],
           state:null,
           btns:[
             {
@@ -69,6 +71,9 @@ import Coil from './src/index.vue'
         }
       },
       methods:{
+        selectTool(t){
+          this.state = t
+        },
         addShape(type){
           const coil = this.$refs.coil
           let t = null

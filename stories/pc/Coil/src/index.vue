@@ -83,6 +83,9 @@ import mouse from './lib/mouse'
 export default {
   name: 'Coil',
   props: {
+    ctrln:{
+      default:()=>['polygon','rect','ellipse','dot']
+    },
     dotAttrs: {
       default: () => ({
         stroke: 'none',
