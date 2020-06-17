@@ -26,7 +26,8 @@ import Coil from './src/index.vue'
     {{
       components: { Coil },
       template: `<div>
-        <Coil @selectTool="selectTool" :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg" :ctrln="ctrln"/>
+        <Coil @selectTool="selectTool" @changeBlocks="changeBlocks" :width="400" :height="400" ref="coil" src="http://img.ikstatic.cn/MTU5MDU0NDQyMTA3MiM5NzAjanBn.jpg" :ctrln="ctrln"/>
+        <pre style="position: absolute;right: 0;top: 0;">{{info}}</pre>
         <div>
           <button v-for="(it,i) in btns" 
             :key="i" 
@@ -50,6 +51,7 @@ import Coil from './src/index.vue'
         return {
           ctrln:['polygon','rect','ellipse','dot'],
           state:null,
+          info:[],
           btns:[
             {
               label:'多边形',
@@ -71,6 +73,38 @@ import Coil from './src/index.vue'
         }
       },
       methods:{
+        changeBlocks(v){
+          console.log(v)
+          const info = v.map(({type,paths})=>{
+            console.log(type)
+            let o = {}
+            if(type==='ellipse'){
+              o = {type,data:JSON.stringify(this.path2ellipse(paths))}
+            }else if(type==='rect'){
+              o = {type,data:JSON.stringify(this.path2rect(paths))}
+            }else {
+              o = {type,data:JSON.stringify(paths)}
+            }
+            return o
+          })
+          this.info = JSON.stringify(info,null,2)
+        },
+        path2ellipse(paths){
+          return {
+            cx:(paths[0][0]+paths[3][0])/2, 
+            cx:(paths[0][1]+paths[1][1])/2,
+            rx:(paths[3][0]-paths[0][0])/2,
+            ry:(paths[1][1]-paths[0][1])/2
+          }
+        },
+        path2rect(paths){
+          return {
+            left:paths[0][0],
+            top:paths[0][1],
+            width:paths[3][0]-paths[0][0],
+            height:paths[1][1]-paths[0][1],
+          }
+        },
         selectTool(t){
           this.state = t
         },

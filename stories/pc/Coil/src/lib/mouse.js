@@ -2,7 +2,8 @@ import { deepClone } from './utils'
 import {
   moveDirec,
   dragRactHorn,
-  dragRactHornRate
+  dragRactHornRate,
+  dragRactHornRotate
 } from './shape'
 export default {
   data () {
@@ -62,8 +63,7 @@ export default {
           } else {
             rotate = Math.atan(-mx / my) * 180 / Math.PI + 180
           }
-
-          this.blocks[i].rotate = rotate
+          block.rotate = rotate
           return false
         } else if (j !== undefined) { // 拖动脚
           const px = oPaths[j][0]
@@ -77,7 +77,7 @@ export default {
             if (this.keyStatus.Control && this.CtlWDH) {
               dragRactHornRate(paths, j, { wDh: this.CtlWDH, mx, my, px, py })
             } else {
-              dragRactHorn(paths, j, { ex, ey })
+              block.paths = dragRactHornRotate(paths, j * 2, { ex: clientX - this.rx, ey: clientY - this.ry }, block.rotate)
             }
           }
         } else { // 整体拖动

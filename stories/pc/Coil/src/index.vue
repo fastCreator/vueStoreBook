@@ -121,8 +121,11 @@ export default {
     }
   },
   watch:{
-    blocks(v){
-      console.log(v)
+    blocks:{
+      handler(v){
+        this.$emit('changeBlocks',v)
+      },
+      deep:true
     }
   },
   mixins: [history, keyboard, mouse],
@@ -284,6 +287,9 @@ export default {
     this.loadImg()
   },
   mounted () {
+    let box = this.$el.getBoundingClientRect()
+    this.rx = box.left
+    this.ry = box.top
   }
 }
 </script>
