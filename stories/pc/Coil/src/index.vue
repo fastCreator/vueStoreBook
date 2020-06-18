@@ -133,7 +133,7 @@ export default {
   data () {
     return {
       rotateIcon,
-      zoom:1,
+      zoom:1.5,
       width: 0,
       height: 0,
       key: 0,
@@ -261,7 +261,7 @@ export default {
     addHorn (e) {
       const block = this.blocks[this.selectedI]
       if (block && block.type === 'polygon') {
-        block.paths.push([e.offsetX, e.offsetY])
+        block.paths.push([e.offsetX/this.zoom, e.offsetY/this.zoom])
       }
     },
     coordinateX ({ paths, type }) {
