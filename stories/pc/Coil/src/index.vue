@@ -133,7 +133,7 @@ export default {
   data () {
     return {
       rotateIcon,
-      zoom:1.5,
+      zoom:1,
       width: 0,
       height: 0,
       key: 0,
