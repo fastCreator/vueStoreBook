@@ -167,7 +167,9 @@ export default {
     },
     drawBlock (e) {
       const type = this.state
-      const { offsetX, offsetY } = e
+      let { offsetX, offsetY } = e
+      offsetX/=this.zoom
+      offsetY/=this.zoom
       if (type === 'rect' || type === 'ellipse') {
         this.$addBlock(this.state, [[offsetX, offsetY], [offsetX, offsetY], [offsetX, offsetY], [offsetX, offsetY]])
         const i = this.blocks.length - 1

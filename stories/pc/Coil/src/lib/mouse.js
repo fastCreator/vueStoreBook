@@ -33,8 +33,8 @@ export default {
       this.$selecteBlock({ i })
       const { paths } = this.blocks[i]
       this.mouseData = {
-        x: e.clientX,
-        y: e.clientY,
+        x: e.clientX / this.zoom,
+        y: e.clientY / this.zoom,
         i,
         j,
         oPaths: deepClone(paths)
@@ -49,8 +49,10 @@ export default {
     },
     handlerMousemove (e) {
       if (this.mouseData) {
-        const { x, y, oPaths, i, j, rotate } = this.mouseData
-        const { clientX, clientY } = e
+        let { x, y, oPaths, i, j, rotate } = this.mouseData
+        let { clientX, clientY } = e
+        clientX /= this.zoom
+        clientY /= this.zoom
         const block = this.blocks[i]
         const { type, paths } = block
         const mx = clientX - x
