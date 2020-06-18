@@ -43,9 +43,15 @@ export default {
     handlerMouseup () {
       if (this.mouseData) {
         this.endBlockStatus('square')
+        const block = this.blocks[this.selectedI]
+        if (block.type === 'rect' || block.type === 'ellipse') {  // 圆和矩形面积太小 自动去除，防止误操作
+          if (block.paths[3][0] - block.paths[0][0] < 4 || block.paths[1][1] - block.paths[0][1] < 4) {
+            this.blocks.splice(this.selectedI, 1)
+          }
+        }
       }
-      this.addHistory()
       this.mouseData = null
+      this.addHistory()
     },
     handlerMousemove (e) {
       if (this.mouseData) {
