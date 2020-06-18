@@ -25,8 +25,11 @@ export default {
       }
     },
     handlerMousedown (e, i, j) {
+      let box = this.$el.getBoundingClientRect()
+      this.rx = box.left
+      this.ry = box.top
       const block = this.blocks[i]
-      if (j === 0 && block.type === 'polygon') {
+      if (j === 0 && block.type === 'polygon' && this.blocks[i].waitClose) {
         this.blocks[i].waitClose = false
         return false
       }
@@ -63,7 +66,6 @@ export default {
         const { type, paths } = block
         const mx = clientX - x
         const my = clientY - y
-
         if (rotate) {
           let rotate
           if (my < 0) {

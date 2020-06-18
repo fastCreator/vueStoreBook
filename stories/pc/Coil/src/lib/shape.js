@@ -1,6 +1,10 @@
 // 获取矩形SVG路径
 export function getRectPath ({ paths, square, type }) {
-  return `M${paths.reduce((a, b) => `${a} L${b[0]} ${b[1]}`, '').slice(2)}`
+  if (type === 'polygon') {
+    return `M${paths.reduce((a, b) => `${a} L${b[0]} ${b[1]}`, '').slice(2)}`
+  } else {
+    return `M${paths.reduce((a, b) => `${a} L${b[0]} ${b[1]}`, '').slice(2)} Z`
+  }
 }
 
 // 获取圆形SVG路径

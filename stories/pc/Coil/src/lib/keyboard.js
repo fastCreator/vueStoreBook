@@ -69,7 +69,7 @@ export default {
         } else if (['1','2','3','4'].indexOf(key) > -1 && key<=this.ctrln.length) {
           const type = this.ctrln[key-1]
           this.$setState(type)
-          this.$emit('selectTool',type)
+          this.$emit('selecttool',type)
         }
         e.stopPropagation()
         event.preventDefault()

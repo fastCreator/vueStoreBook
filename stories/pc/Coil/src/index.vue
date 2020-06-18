@@ -187,6 +187,16 @@ export default {
     },
     $setState (state) {
       this.state = state
+      if(state !== 'polygon'){
+        let len = this.blocks.length
+        for(let i =0;i<len;i++){
+          if(this.blocks[i].waitClose){
+            this.blocks.splice(i,1)
+            i--
+            len--
+          }
+        }
+      }
     },
     loadImg () {
       const img = new Image()
@@ -217,7 +227,7 @@ export default {
       const block = this.blocks[this.selectedI]
       if (block && block.paths) {
         const { paths } = block
-        block.paths = moveDirec(paths, DirecLenMap(direc))
+        block.paths = moveDirec(paths, DirecLenMap[direc])
         this.$forceUpdate()
       }
     },
@@ -290,9 +300,7 @@ export default {
     this.loadImg()
   },
   mounted () {
-    let box = this.$el.getBoundingClientRect()
-    this.rx = box.left
-    this.ry = box.top
+    
   }
 }
 </script>

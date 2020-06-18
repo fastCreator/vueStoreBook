@@ -4,6 +4,7 @@
   "description": "Vue UI 组件库",
   "scripts": {
     "storybook": "start-storybook -p 6006",
+    "start": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "deploy": "gh-pages -d storybook-static"
   },
