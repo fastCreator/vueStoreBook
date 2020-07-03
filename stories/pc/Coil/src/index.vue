@@ -40,7 +40,7 @@
         v-bind="textAttrs"
         :font-size="textAttrs.fontSize /zoom + 'px'"
         :x="it.paths[0]"
-        :y="it.paths[1]+1"
+        :y="it.paths[1]"
         text-anchor="middle"
         dominant-baseline="middle"
       >{{i+1}}</text>
@@ -111,8 +111,9 @@ export default {
     },
     textAttrs: {
       default: () => ({
-        stroke: 'black',
-        fontSize: 10
+        stroke: 'transparent',
+        fill: 'black',
+        fontSize: 12
       })
     },
     pathAttrs: {
