@@ -21,6 +21,7 @@
         v-bind="dotAttrs"
         :cx="it.paths[0]"
         :cy="it.paths[1]"
+        :r="dotAttrs.r/zoom"
       ></circle>
       <ellipse
         :style="getRoateStyle(it)"
@@ -37,6 +38,7 @@
       <text
         v-if="it.type === 'dot'"
         v-bind="textAttrs"
+        :font-size="textAttrs.fontSize /zoom + 'px'"
         :x="it.paths[0]"
         :y="it.paths[1]+1"
         text-anchor="middle"
@@ -45,6 +47,7 @@
       <text
         v-else
         v-bind="textAttrs"
+        :font-size="textAttrs.fontSize /zoom + 'px'"
         :x="coordinateX(it)+4"
         :y="coordinateY(it)+4"
         :style="getRoateStyle(it)"
@@ -52,13 +55,15 @@
         dominant-baseline="hanging"
       >{{i+1}}</text>
       <g v-if="selectedI === i && it.type!=='dot'" :style="getRoateStyle(it)">
-        <image v-if="it.type==='ellipse' || it.type==='rect'" @mousedown.stop="handlerRotate($event, i)" class="rotate" :x="(it.paths[0][0] + it.paths[3][0])/2 -10" :y="it.paths[0][1]-30" width="20" height="20" xlink:href="./img/rotate.png"/>
+        <image v-if="it.type==='ellipse' || it.type==='rect'" @mousedown.stop="handlerRotate($event, i)" class="rotate" :x="(it.paths[0][0] + it.paths[2][0])/2 -10/zoom" :y="it.paths[0][1]-30/zoom" :width="20/zoom" :height="20/zoom" xlink:href="./img/rotate.png"/>
         <rect
           v-for="(jt, j) in getShowPath(it)"
-          :x="jt[0] - rectAttrs.width / 2"
-          :y="jt[1] - rectAttrs.height / 2"
-          :key="`${i},${j}`"
           v-bind="rectAttrs"
+          :x="jt[0] - rectAttrs.width / 2 / zoom"
+          :y="jt[1] - rectAttrs.height / 2 / zoom"
+          :width="rectAttrs.width / zoom"
+          :height="rectAttrs.height / zoom"
+          :key="`${i},${j}`"
           :class="jt.join(',') + it.square + j"
           @mousedown.stop="handlerMousedown($event, i, j)"
         ></rect>
@@ -82,10 +87,17 @@ import { deepClone } from './lib/utils'
 import history from './lib/history'
 import keyboard from './lib/keyboard'
 import mouse from './lib/mouse'
-
+const defaultdata = ()=>null
 export default {
   name: 'Coil',
   props: {
+    defaultdata:{
+      type: Function,
+      default: defaultdata
+    },
+    value:{
+      default:()=>[]
+    },
     ctrln:{
       default:()=>['polygon','rect','ellipse','dot']
     },
@@ -100,7 +112,7 @@ export default {
     textAttrs: {
       default: () => ({
         stroke: 'black',
-        'font-size': '10px'
+        fontSize: 10
       })
     },
     pathAttrs: {
@@ -138,7 +150,7 @@ export default {
       height: 0,
       key: 0,
       selectedI: null,
-      blocks: [],
+      blocks: this.value,
       copyBlock: null,
       state: null,
     }
@@ -218,8 +230,9 @@ export default {
       this.selectedI = selectedI
     },
     // 添加一个块
-    $addBlock (type, paths, data) {
-      this.blocks.push({ key: this.key++, type, paths, ...data,rotate:0 })
+    $addBlock (type, paths, _data) {
+      const data = this.defaultdata({type, paths, _data})
+      this.blocks.push({ key: this.key++, type, paths, ..._data,data,rotate:0 })
       this.selectedI = this.blocks.length - 1
     },
     // 模块上下左右移动

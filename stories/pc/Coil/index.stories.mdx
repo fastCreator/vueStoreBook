@@ -27,7 +27,7 @@ import Coil from './src/index.vue'
     {{
       components: { Coil },
       template: `<div>
-        <Coil @selectTool="selectTool" @changeBlocks="changeBlocks" :width="400" :height="400" ref="coil" :src="imgURL" :ctrln="ctrln"/>
+        <Coil :addDefaultData="addDefaultData" @selectTool="selectTool" @changeBlocks="changeBlocks" :width="400" :height="400" ref="coil" :src="imgURL" :ctrln="ctrln"/>
         <pre style="position: absolute;right: 0;top: 0;">{{info}}</pre>
         <img v-for="it in urls" :src="it"/>
         <div>
@@ -79,6 +79,9 @@ import Coil from './src/index.vue'
         }
       },
       methods:{
+        addDefaultData(){
+          return  [1,2,3]
+        },
         async clip(){
           this.urls = await clip(this.imgURL,this.originInfo.filter(it=>it.type !=='dot'))
         },
